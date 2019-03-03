@@ -1,0 +1,71 @@
+
+buildscript {
+  ext.versions = [
+      'androidGradlePlugin'    : '3.3.1',
+      'errorProne'             : '2.3.3',
+      'errorProneGradlePlugin' : '0.0.16',
+      'junit'                  : '4.12',
+      'mockito'                : '2.24.0',
+      'okhttp'                 : '3.13.1',
+      'okio'                   : '1.17.3',
+      'retrofit'               : '2.5.0',
+      'truth'                  : '0.43']
+
+  ext.deps = [
+      'androidGradlePlugin'    : "com.android.tools.build:gradle:$versions.androidGradlePlugin",
+      'errorProne'             : "com.google.errorprone:error_prone_core:$versions.errorProne",
+      'errorProneGradlePlugin' : "net.ltgt.gradle:gradle-errorprone-plugin:$versions.errorProneGradlePlugin",
+      'junit'                  : "junit:junit:$versions.junit",
+      'mockito'                : "org.mockito:mockito-core:$versions.mockito",
+      'okhttp'                 : [
+          "core" : "com.squareup.okhttp3:okhttp:$versions.okhttp",
+          "mockwebserver" : "com.squareup.okhttp3:mockwebserver:$versions.okhttp"
+      ],
+      'okio'                   : "com.squareup.okio:okio:$versions.okio",
+      'retrofit'               : "com.squareup.retrofit2:retrofit:$versions.retrofit",
+      'truth'                  : "com.google.truth:truth:$versions.truth"]
+
+  dependencies {
+    classpath deps.androidGradlePlugin
+    classpath deps.errorProneGradlePlugin
+  }
+
+  repositories {
+    google()
+    maven { url 'https://plugins.gradle.org/m2/' }
+  }
+}
+
+allprojects {
+  tasks.withType(JavaCompile) {
+    options.compilerArgs += ['-Xlint:all',
+                             '-Xlint:-deprecation',
+                             '-Werror']
+  }
+
+  apply plugin: 'net.ltgt.errorprone'
+  apply plugin: 'checkstyle'
+
+  repositories {
+    google()
+    mavenCentral()
+    jcenter()
+  }
+
+  dependencies {
+    errorprone deps.errorProne
+  }
+
+  task checkstyle(type: Checkstyle) {
+    configFile rootProject.file('checkstyle.xml')
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    classpath = files()
+  }
+
+  checkstyle {
+    toolVersion = '7.7'
+  }
+}

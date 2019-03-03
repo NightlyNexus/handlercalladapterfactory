@@ -1,0 +1,39 @@
+apply plugin: 'com.android.library'
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
+
+android {
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+  compileSdkVersion 28
+
+  defaultConfig {
+    minSdkVersion 21
+  }
+
+  lintOptions {
+    abortOnError true
+    warningsAsErrors true
+    textReport true
+    textOutput 'stdout'
+    htmlReport true
+    htmlOutput rootProject.file("lint-reports/${name}.html")
+  }
+
+  // TODO: Replace with https://issuetracker.google.com/issues/72050365 once released.
+  libraryVariants.all {
+    it.generateBuildConfig.enabled = false
+  }
+}
+
+dependencies {
+  api deps.okhttp.core
+  api deps.okio
+  api deps.retrofit
+  testImplementation deps.junit
+  testImplementation deps.mockito
+  testImplementation deps.okhttp.mockwebserver
+  testImplementation deps.truth
+}
